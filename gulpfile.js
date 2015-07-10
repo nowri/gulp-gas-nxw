@@ -68,9 +68,10 @@ gulp.task('concat', function(cb) {
 
 
 gulp.task('common:before', function(cb) {
-	runSequence(
+	//runSequence(
 		/* Common tasks here */
-		cb);
+		//cb);
+	cb();
 });
 
 gulp.task('deploy', function(cb) {
