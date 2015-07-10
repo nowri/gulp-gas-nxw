@@ -1,0 +1,19 @@
+{
+  "name": "project-name",
+  "description": "project-description",
+  "version": "0.0.0",
+  "author": "authorName",
+  "readmeFilename": "README.md",
+  "devDependencies": {
+    "del": "^1.2.0",
+    "gulp": "^3.8.11",
+    "gulp-concat": "^2.6.0",
+    "gulp-watch": "^4.2.4",
+    "run-sequence": "^1.1.0"
+  },
+  "scripts": {
+    "preinstall": "",
+    "postinstall": ""
+  },
+  "dependencies": {}
+}
