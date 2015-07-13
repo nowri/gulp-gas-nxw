@@ -33,27 +33,53 @@ gulp.task('watch', function () {
  * Custom setting
  * */
 var fs = require('fs');
-function concatOneHtml(html, cssDir, jsDir, dist, cb) {
+var cheerio = require('cheerio');
 
-	var cssAr = fs.readdirSync(cssDir);
-	var jsAr = fs.readdirSync(jsDir);
-	var css="", js="", result=fs.readFileSync(html, "utf8");
+function concatOneHtml(html, srcRoot, dist, cb) {
+
+	var css = "";
+	var js = "";
+	var result = fs.readFileSync(html, "utf8");
 	var htmlAr = html.split("/");
 	var htmlName = htmlAr[htmlAr.length-1];
 
-	cssAr.forEach(function(val){
-		if(typeof val === "string") {
-			css += "\n" + fs.readFileSync(cssDir + "/" + val, "utf8") + "\n";
-		}
-	});
+	var $ = cheerio.load(result);
 
-	jsAr.forEach(function(val){
-		if(typeof val === "string") {
-			js += "\n" + fs.readFileSync(jsDir + "/" + val, "utf8") + "\n";
+	var jsList = [];
+	$("script").each( function(index, el) {
+		var $this = $(el);
+		var src = $this.attr("src");
+		if(src) {
+			jsList.push(src);
+			$this.remove();
 		}
 	});
-	result = result.replace("</body>", "<script>" + js + "</script>\n</body>");
-	result = result.replace("</head>", "\n<style>" + css + "</style>\n</head>");
+	jsList.forEach(function(val){
+		if(typeof val === "string") {
+			js += "\n" + fs.readFileSync(srcRoot + "/" + val, "utf8") + "\n";
+		}
+	});
+	var cssList = [];
+	$("link").each( function(index, el) {
+		var $this = $(el);
+		var href = $this.attr("href");
+		var rel = $this.attr("rel");
+		if(href && rel.toUpperCase() === "STYLESHEET") {
+			cssList.push(href);
+			$this.remove();
+		}
+	});
+	cssList.forEach(function(val){
+		if(typeof val === "string") {
+			css += "\n" + fs.readFileSync(srcRoot + "/" + val, "utf8") + "\n";
+		}
+	});
+	$("head")
+		.append("<style id=\"concat-css\" />")
+		.append("<script id=\"concat-js\"></script>");
+	$("#concat-css").text(css);
+	$("#concat-js").text(js);
+	result = $.html();
 	try {
 		fs.mkdirSync(dist);
 	}catch(e){}
@@ -62,7 +88,7 @@ function concatOneHtml(html, cssDir, jsDir, dist, cb) {
 }
 
 gulp.task('concat', function(cb) {
-	concatOneHtml("_release/index.html", "_release/css", "_release/js", "_sync", cb);
+	concatOneHtml("_release/index.html", "_release", "_sync", cb);
 });
 
 
