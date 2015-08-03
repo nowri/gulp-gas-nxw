@@ -1,2 +1,2 @@
 # gulp-gas-nxw
-Gulp GoogleAppsScript development template  
+Gulp Google Apps Script development template  
