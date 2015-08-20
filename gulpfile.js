@@ -81,7 +81,7 @@ function concatOneHtml(html, srcRoot, dist, cb) {
         var $this = $(el);
         var href = $this.attr('href');
         var rel = $this.attr('rel');
-        if (href && rel.toUpperCase() === 'STYLESHEET') {
+        if (href && (!href.indexOf("http")===0 && !href.indexOf("//")===0) && rel.toUpperCase() === "STYLESHEET") {
             cssList.push(href);
             $this.remove();
         }
