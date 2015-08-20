@@ -12,11 +12,11 @@ var dirs = {
     src: 'src'
 };
 
-gulp.task('clean:allRelease', function (cb) {
+gulp.task('clean:allRelease', function(cb) {
     del([dirs.release], cb);
 });
 
-gulp.task('copy:toRelease', function () {
+gulp.task('copy:toRelease', function() {
     return gulp
         .src(
         [dirs.deploy + '/**'],
@@ -25,11 +25,11 @@ gulp.task('copy:toRelease', function () {
         .pipe(gulp.dest(dirs.release));
 });
 
-gulp.task('watch:deploy', function () {
+gulp.task('watch:deploy', function() {
     gulp.watch(dirs.src + '/**', ['deploy']);
 });
 
-gulp.task('watch:render-and-upload', function () {
+gulp.task('watch:render-and-upload', function() {
     gulp.watch([dirs.src + '/**', dirs.sync + '/main.js'], ['sync-and-upload']);
 });
 
@@ -63,31 +63,31 @@ function concatOneHtml(html, srcRoot, dist, cb) {
     var $ = cheerio.load(result);
 
     var jsList = [];
-    $('script').each(function (index, el) {
+    $('script').each(function(index, el) {
         var $this = $(el);
         var src = $this.attr('src');
-        if (src) {
+        if(src) {
             jsList.push(src);
             $this.remove();
         }
     });
-    jsList.forEach(function (val) {
-        if (typeof val === 'string') {
+    jsList.forEach(function(val) {
+        if(typeof val === 'string') {
             js += '\n' + fs.readFileSync(srcRoot + '/' + val, 'utf8') + '\n';
         }
     });
     var cssList = [];
-    $('link').each(function (index, el) {
+    $('link').each(function(index, el) {
         var $this = $(el);
         var href = $this.attr('href');
         var rel = $this.attr('rel');
-        if (href && (!href.indexOf("http")===0 && !href.indexOf("//")===0) && rel.toUpperCase() === "STYLESHEET") {
+        if(href && (!(href.indexOf("http") === 0) && !(href.indexOf("//") === 0)) && rel.toUpperCase() === "STYLESHEET") {
             cssList.push(href);
             $this.remove();
         }
     });
-    cssList.forEach(function (val) {
-        if (typeof val === 'string') {
+    cssList.forEach(function(val) {
+        if(typeof val === 'string') {
             css += '\n' + fs.readFileSync(srcRoot + '/' + val, 'utf8') + '\n';
         }
     });
@@ -99,31 +99,31 @@ function concatOneHtml(html, srcRoot, dist, cb) {
     result = $.html();
     try {
         fs.mkdirSync(dist);
-    } catch (e) {
+    } catch(e) {
     }
     fs.writeFileSync(dist + '/' + htmlName, result);
     cb();
 }
 
-gulp.task('concat', function (cb) {
+gulp.task('concat', function(cb) {
     concatOneHtml('_release/index.html', '_release', dirs.sync, cb);
 });
 
 
-gulp.task('common:before', function (cb) {
+gulp.task('common:before', function(cb) {
     //runSequence(
     /* Common tasks here */
     //cb);
     cb();
 });
 
-gulp.task('deploy', function (cb) {
+gulp.task('deploy', function(cb) {
     runSequence('common:before',
         /* Deploy tasks here */
         cb);
 });
 
-gulp.task('release', function (cb) {
+gulp.task('release', function(cb) {
     runSequence(
         'common:before',
         'clean:allRelease',
@@ -132,23 +132,23 @@ gulp.task('release', function (cb) {
         cb);
 });
 
-gulp.task('gas-render', function (cb) {
+gulp.task('gas-render', function(cb) {
     runSequence(
         'release',
         'concat',
         cb);
 });
 
-gulp.task('gas-upload', function (cb) {
-    manager.getProject(gasParams.file_id, function (res, gasProject) {
+gulp.task('gas-upload', function(cb) {
+    manager.getProject(gasParams.file_id, function(res, gasProject) {
         var origin = gasProject.origin;
         var files = fs.readdirSync(dirs.sync);
-        origin.files.forEach(function (el, i) {
+        origin.files.forEach(function(el, i) {
             var oName = el.name;
-            files.forEach(function (el2, j) {
+            files.forEach(function(el2, j) {
                 var _name = el2.split('.')[0];
                 var obj, src;
-                if (_name === oName) {
+                if(_name === oName) {
                     obj = _.clone(el);
                     src = fs.readFileSync(dirs.sync + el2, 'utf8');
                     obj.source = src;
@@ -156,8 +156,8 @@ gulp.task('gas-upload', function (cb) {
                 }
             });
         });
-        gasProject.deploy(function (err, project, response) {
-                if (err) {
+        gasProject.deploy(function(err, project, response) {
+                if(err) {
                     throw new Error(err)
                 }
                 cb();
@@ -166,7 +166,7 @@ gulp.task('gas-upload', function (cb) {
     });
 });
 
-gulp.task('render-and-upload', function (cb) {
+gulp.task('render-and-upload', function(cb) {
     runSequence(
         'gas-render',
         'gas-upload',
